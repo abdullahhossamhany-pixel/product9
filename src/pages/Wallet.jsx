@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Wallet as WalletIcon, Gift, Loader2 } from "lucide-react";
-import RequestTopup from "@/components/wallet/RequestTopup";
 import WalletTransactions from "@/components/wallet/WalletTransactions";
 
 export default function Wallet() {
