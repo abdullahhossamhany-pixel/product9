@@ -7,7 +7,6 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AdminOrderHistory from './pages/AdminOrderHistory';
 import AdminManageAdmins from './pages/AdminManageAdmins';
 import AdminReceipts from './pages/AdminReceipts';
@@ -50,7 +49,14 @@ const AuthenticatedApp = () => {
   // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
+      return (
+        <div className="fixed inset-0 flex items-center justify-center p-6">
+          <div className="max-w-md text-center">
+            <h1 className="text-2xl font-bold mb-2">Account not registered</h1>
+            <p className="text-slate-600">Your account is not registered for this app. Please sign in with a registered account.</p>
+          </div>
+        </div>
+      );
     } else if (authError.type === 'auth_required') {
       // Redirect to login automatically
       navigateToLogin();
