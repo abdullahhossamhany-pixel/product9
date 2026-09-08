@@ -14,20 +14,32 @@ if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Direct sign in calls to Base44 login page
+// Redirect to Base44 login page
 sdkClient.auth.redirectToLogin = (opts) => {
   const currentOrigin = window.location.origin;
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// LOCAL CLEANUP LOGIC: Clear all local credentials and stay on Render domain
-sdkClient.auth.logout = () => {
+// Force complete auth revocation and token cleanup
+sdkClient.auth.logout = async () => {
   try {
-    // Clear storage where tokens/user states are saved
+    // 1. Force SDK internal session clearing if available
+    if (typeof sdkClient.clearAuth === 'function') {
+      sdkClient.clearAuth();
+    }
+    if (sdkClient.token) {
+      sdkClient.token = null;
+    }
+  } catch (e) {
+    console.error("SDK token cleanup error:", e);
+  }
+
+  // 2. Clear all local browser storage and authorization headers
+  try {
     localStorage.clear();
     sessionStorage.clear();
-
-    // Expire browser cookies for this site
+    
+    // Clear cookies across all paths
     const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
@@ -35,12 +47,10 @@ sdkClient.auth.logout = () => {
       const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
     }
-  } catch (err) {
-    console.error("Local logout error:", err);
-  }
+  } catch (e) {}
 
-  // Refresh and redirect directly to home on your Render domain
-  window.location.href = "/";
+  // 3. Force hard redirect to home page without cache
+  window.location.replace("/");
 };
 
 // Suppress WebSocket errors from freezing UI
