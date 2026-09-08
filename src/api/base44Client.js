@@ -10,7 +10,31 @@ const sdkClient = createClient({
   }
 });
 
-// Suppress WebSocket reconnection errors from freezing UI
+// Override logout to stay strictly on local Render domain
+if (!sdkClient.auth) {
+  sdkClient.auth = {};
+}
+
+sdkClient.auth.logout = () => {
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Expire local site cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/");
+    });
+  } catch (e) {
+    console.error("Local logout error:", e);
+  }
+
+  // Force local reload to home page on Render
+  window.location.href = "/";
+};
+
+// Suppress WebSocket errors from interrupting UI
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }

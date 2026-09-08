@@ -10,30 +10,31 @@ const sdkClient = createClient({
   }
 });
 
+// Override logout to stay strictly on local Render domain
 if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Login redirect
-sdkClient.auth.redirectToLogin = (opts) => {
-  const currentOrigin = window.location.origin;
-  window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
-};
-
-// Full Remote + Local Logout
 sdkClient.auth.logout = () => {
-  // 1. Wipe local storage
   try {
     localStorage.clear();
     sessionStorage.clear();
-  } catch (e) {}
+    
+    // Expire local site cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/");
+    });
+  } catch (e) {
+    console.error("Local logout error:", e);
+  }
 
-  // 2. Redirect to Base44 auth logout with both return parameter variants
-  const returnUrl = encodeURIComponent(window.location.origin);
-  window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${returnUrl}&return_to=${returnUrl}&redirect=${returnUrl}`;
+  // Force local reload to home page on Render
+  window.location.href = "/";
 };
 
-// Suppress WebSocket error loops
+// Suppress WebSocket errors from interrupting UI
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }
