@@ -14,7 +14,7 @@ if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Direct auth functions to external Base44 auth endpoint instead of relative domain path
+// Direct authentication endpoints to Base44 app backend
 sdkClient.auth.redirectToLogin = (opts) => {
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}`;
 };
@@ -22,6 +22,13 @@ sdkClient.auth.redirectToLogin = (opts) => {
 sdkClient.auth.logout = () => {
   window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}`;
 };
+
+// Prevent socket errors from blocking or crashing page renders
+if (sdkClient.socket) {
+  sdkClient.socket.on?.('connect_error', () => {
+    // Silently suppress repetitive socket connection errors
+  });
+}
 
 if (typeof window !== 'undefined') {
   window.base44 = sdkClient;
