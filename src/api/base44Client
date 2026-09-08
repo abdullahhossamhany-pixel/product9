@@ -10,42 +10,40 @@ const sdkClient = createClient({
   }
 });
 
-// Store reference to original SDK logout if available
-const originalLogout = sdkClient.auth?.logout;
-
 if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Direct login to Base44 auth endpoint
+// Direct sign in calls to Base44 login page
 sdkClient.auth.redirectToLogin = (opts) => {
   const currentOrigin = window.location.origin;
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// Full SDK + Remote Session Logout
-sdkClient.auth.logout = async () => {
+// LOCAL CLEANUP LOGIC: Clear all local credentials and stay on Render domain
+sdkClient.auth.logout = () => {
   try {
-    // 1. Call original SDK logout method if it exists to clear internal SDK cache
-    if (typeof originalLogout === 'function') {
-      await originalLogout.call(sdkClient.auth).catch(() => {});
-    }
-  } catch (e) {
-    console.error("SDK internal logout error:", e);
-  } finally {
-    // 2. Wipe local browser storage
-    try {
-      localStorage.clear();
-      sessionStorage.clear();
-    } catch (e) {}
+    // Clear storage where tokens/user states are saved
+    localStorage.clear();
+    sessionStorage.clear();
 
-    // 3. Force browser redirection to Base44 logout route to terminate remote session cookies
-    const currentOrigin = window.location.origin;
-    window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
+    // Expire browser cookies for this site
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+  } catch (err) {
+    console.error("Local logout error:", err);
   }
+
+  // Refresh and redirect directly to home on your Render domain
+  window.location.href = "/";
 };
 
-// Suppress WebSocket errors from interrupting UI
+// Suppress WebSocket errors from freezing UI
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }
