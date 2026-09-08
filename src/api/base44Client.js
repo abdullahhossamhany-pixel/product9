@@ -14,46 +14,26 @@ if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Redirect to Base44 login page
+// Login redirect
 sdkClient.auth.redirectToLogin = (opts) => {
   const currentOrigin = window.location.origin;
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// Force complete auth revocation and token cleanup
-sdkClient.auth.logout = async () => {
-  try {
-    // 1. Force SDK internal session clearing if available
-    if (typeof sdkClient.clearAuth === 'function') {
-      sdkClient.clearAuth();
-    }
-    if (sdkClient.token) {
-      sdkClient.token = null;
-    }
-  } catch (e) {
-    console.error("SDK token cleanup error:", e);
-  }
-
-  // 2. Clear all local browser storage and authorization headers
+// Full Remote + Local Logout
+sdkClient.auth.logout = () => {
+  // 1. Wipe local storage
   try {
     localStorage.clear();
     sessionStorage.clear();
-    
-    // Clear cookies across all paths
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-    }
   } catch (e) {}
 
-  // 3. Force hard redirect to home page without cache
-  window.location.replace("/");
+  // 2. Redirect to Base44 auth logout with both return parameter variants
+  const returnUrl = encodeURIComponent(window.location.origin);
+  window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${returnUrl}&return_to=${returnUrl}&redirect=${returnUrl}`;
 };
 
-// Suppress WebSocket errors from freezing UI
+// Suppress WebSocket error loops
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }
