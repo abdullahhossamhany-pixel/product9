@@ -20,10 +20,22 @@ sdkClient.auth.redirectToLogin = (opts) => {
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// Clear session on Base44 and redirect back to your app homepage
+// Local logout override: clear tokens locally and stay on Render domain
 sdkClient.auth.logout = () => {
-  const currentOrigin = window.location.origin;
-  window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    // Clear common SDK cookie/token keys if present
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+  } catch (e) {
+    console.error("Logout cleanup error:", e);
+  }
+  // Instantly redirect back to app homepage or login route on Render domain
+  window.location.href = "/";
 };
 
 // Suppress WebSocket reconnection errors from freezing UI
