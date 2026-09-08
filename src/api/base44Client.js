@@ -10,30 +10,7 @@ const sdkClient = createClient({
   }
 });
 
-if (!sdkClient.auth) {
-  sdkClient.auth = {};
-}
-
-// Login redirect
-sdkClient.auth.redirectToLogin = (opts) => {
-  const currentOrigin = window.location.origin;
-  window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
-};
-
-// Full Remote + Local Logout
-sdkClient.auth.logout = () => {
-  // 1. Wipe local storage
-  try {
-    localStorage.clear();
-    sessionStorage.clear();
-  } catch (e) {}
-
-  // 2. Redirect to Base44 auth logout with both return parameter variants
-  const returnUrl = encodeURIComponent(window.location.origin);
-  window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${returnUrl}&return_to=${returnUrl}&redirect=${returnUrl}`;
-};
-
-// Suppress WebSocket error loops
+// Suppress WebSocket reconnection errors from freezing UI
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }
