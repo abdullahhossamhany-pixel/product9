@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState, useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { Loader2, Send, Bot, ArrowLeft, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";

@@ -3,7 +3,7 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageSquare, X, Loader2 } from "lucide-react";
+import { MessageSquareText, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminMessageBanner({ email }) {
@@ -42,7 +42,7 @@ export default function AdminMessageBanner({ email }) {
       >
         <div className="flex items-start gap-3 bg-stone-900 text-white rounded-2xl px-4 py-3 shadow-sm">
           <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquareText className="w-4 h-4" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">

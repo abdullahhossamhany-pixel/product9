@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
-import { Package, Clock, Truck, CheckCircle, XCircle, Calendar, Send, Upload, Download, Loader2, MessageSquare, Image as ImageIcon, QrCode } from "lucide-react";
+import { Package, Clock, Truck, CheckCircle, XCircle, Calendar, Send, Upload, Download, Loader2, MessageSquareText, Image as ImageIcon, QrCode } from "lucide-react";
 import CourierLocationSharer from "@/components/admin/CourierLocationSharer";
 import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "sonner";
@@ -126,7 +126,7 @@ export default function AdminOrderRow({ order, onStatusChange }) {
       {order.customer_email && (
         <div className="mt-3 pt-3 border-t border-stone-100">
           <p className="text-xs font-semibold text-stone-700 mb-2 flex items-center gap-1">
-            <MessageSquare className="w-3.5 h-3.5" /> Message customer
+            <MessageSquareText className="w-3.5 h-3.5" /> Message customer
           </p>
           <div className="flex gap-2">
             <input
