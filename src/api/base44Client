@@ -14,31 +14,37 @@ if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Redirect to Base44 auth login page
+// Force redirection to remote Base44 authentication login endpoint
 sdkClient.auth.redirectToLogin = (opts) => {
   const currentOrigin = window.location.origin;
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// Local logout override: clear tokens locally and stay on Render domain
+// Absolute session destruction logic on logout
 sdkClient.auth.logout = () => {
   try {
+    // Clear all storage mechanisms
     localStorage.clear();
     sessionStorage.clear();
-    // Clear common SDK cookie/token keys if present
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-  } catch (e) {
-    console.error("Logout cleanup error:", e);
+
+    // Clear all visible cookies across paths and domains
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+  } catch (err) {
+    console.error("Session cleanup error:", err);
   }
-  // Instantly redirect back to app homepage or login route on Render domain
-  window.location.href = "/";
+
+  // Hard redirect to the Base44 remote logout endpoint to clear backend server session
+  const currentOrigin = window.location.origin;
+  window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// Suppress WebSocket reconnection errors from freezing UI
+// Prevent socket errors from crashing or freezing UI
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }
