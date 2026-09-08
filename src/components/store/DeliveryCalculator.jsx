@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 
 // Base shipping from Cairo hub (EGP), per governorate
 export const EGYPT_GOVERNORATES = {

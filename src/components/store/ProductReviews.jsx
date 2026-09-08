@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Star, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 

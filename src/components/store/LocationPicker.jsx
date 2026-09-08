@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MapPin, Search, X, CheckCircle2, Home, Building2, ChevronDown, Bookmark } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 
 const SAVED_LOCATION_KEY = "saved_villa_location";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { HeartHandshake } from "lucide-react";
 
 const PRESETS = [0, 10, 20, 50];

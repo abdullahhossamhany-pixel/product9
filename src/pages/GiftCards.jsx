@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Gift, Loader2, Wallet, ShoppingBag, CheckCircle2, Sparkles } from "lucide-react";
 import { toast } from "sonner";

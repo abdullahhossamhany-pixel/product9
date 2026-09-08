@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/store/ProductCard";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Sparkles, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
