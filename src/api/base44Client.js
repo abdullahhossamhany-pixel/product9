@@ -10,41 +10,42 @@ const sdkClient = createClient({
   }
 });
 
+// Store reference to original SDK logout if available
+const originalLogout = sdkClient.auth?.logout;
+
 if (!sdkClient.auth) {
   sdkClient.auth = {};
 }
 
-// Force redirection to remote Base44 authentication login endpoint
+// Direct login to Base44 auth endpoint
 sdkClient.auth.redirectToLogin = (opts) => {
   const currentOrigin = window.location.origin;
   window.location.href = `${BASE_URL}/api/apps/auth/login?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
 };
 
-// Absolute session destruction logic on logout
-sdkClient.auth.logout = () => {
+// Full SDK + Remote Session Logout
+sdkClient.auth.logout = async () => {
   try {
-    // Clear all storage mechanisms
-    localStorage.clear();
-    sessionStorage.clear();
-
-    // Clear all visible cookies across paths and domains
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    // 1. Call original SDK logout method if it exists to clear internal SDK cache
+    if (typeof originalLogout === 'function') {
+      await originalLogout.call(sdkClient.auth).catch(() => {});
     }
-  } catch (err) {
-    console.error("Session cleanup error:", err);
-  }
+  } catch (e) {
+    console.error("SDK internal logout error:", e);
+  } finally {
+    // 2. Wipe local browser storage
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {}
 
-  // Hard redirect to the Base44 remote logout endpoint to clear backend server session
-  const currentOrigin = window.location.origin;
-  window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
+    // 3. Force browser redirection to Base44 logout route to terminate remote session cookies
+    const currentOrigin = window.location.origin;
+    window.location.href = `${BASE_URL}/api/apps/auth/logout?app_id=${APP_ID}&redirect_url=${encodeURIComponent(currentOrigin)}`;
+  }
 };
 
-// Prevent socket errors from crashing or freezing UI
+// Suppress WebSocket errors from interrupting UI
 if (sdkClient.socket) {
   sdkClient.socket.on?.('connect_error', () => {});
 }
